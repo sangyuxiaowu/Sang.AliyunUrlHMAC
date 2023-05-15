@@ -8,22 +8,26 @@ namespace Sang.AliyunUrlHMAC
     {
         private readonly string _AccessKeyId;
         private readonly string _AccessKeySecret;
-        private readonly string _Host = "";
 
-        public AliyunUrl(string accessKeyId, string accessKeySecret, string host)
+        /// <summary>
+        /// 阿里云URL签名类
+        /// </summary>
+        /// <param name="accessKeyId">accessKeyId</param>
+        /// <param name="accessKeySecret">accessKeySecret</param>
+        public AliyunUrl(string accessKeyId, string accessKeySecret)
         {
             _AccessKeyId = accessKeyId;
             _AccessKeySecret = accessKeySecret;
-            _Host = host;
         }
 
         /// <summary>
         /// 签名请求的URL
         /// </summary>
+        /// <param name="host">请求的主机，例如：https://dyvmsapi.aliyuncs.com/</param>
         /// <param name="parameters">参数，非公共</param>
         /// <param name="method">请求类型</param>
         /// <returns></returns>
-        public string SignUrl(Dictionary<string, string> parameters, HttpMethod method, string version = "2017-05-25")
+        public string SignUrl(string host, Dictionary<string, string> parameters, HttpMethod method,  string version = "2017-05-25")
         {
             parameters.Add("Format", "JSON");
             parameters.Add("Version", version);
@@ -43,7 +47,7 @@ namespace Sang.AliyunUrlHMAC
             var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(stringToSign));
 
             parameters.Add("Signature", Convert.ToBase64String(hashBytes));
-            return _Host + "?" + string.Join("&", parameters.Select(x => x.Key + "=" + HttpUtility.UrlEncode(x.Value)));
+            return host + "?" + string.Join("&", parameters.Select(x => x.Key + "=" + HttpUtility.UrlEncode(x.Value)));
         }
 
         private string PercentEncode(string value)
